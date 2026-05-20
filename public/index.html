@@ -42,29 +42,71 @@
   <script>
     const statusEl = document.getElementById('status');
     const dlEl = document.getElementById('download');
+    const buyBtn = document.getElementById('buy');
     const setStatus = (msg, cls='small') => { statusEl.className = cls; statusEl.textContent = msg; };
-    document.getElementById('buy').addEventListener('click', async () => {
+
+    async function captureOrder(orderId) {
+      if (!orderId) throw new Error('Missing PayPal order id. Please start checkout again.');
+      setStatus('Capturing payment...');
+      const captured = await fetch('/api/capture-order', {
+        method:'POST',
+        headers:{'content-type':'application/json'},
+        body: JSON.stringify({ orderId })
+      }).then(r => r.json());
+      if (!captured.downloadUrl) throw new Error(captured.error || 'Capture failed');
+      sessionStorage.removeItem('paypalOrderId');
+      setStatus('Payment captured. Download link generated.', 'ok');
+      dlEl.innerHTML = `<p><a class="btn" href="${captured.downloadUrl}">Download your kit</a></p><p class="small">Link expires in ${captured.expiresMinutes || 60} minutes.</p>`;
+      history.replaceState({}, '', location.pathname);
+    }
+
+    async function resumePayPalReturn() {
+      const params = new URLSearchParams(location.search);
+      // PayPal returns approved orders as ?token=ORDER_ID&PayerID=...
+      const returnedOrderId = params.get('token') || params.get('orderId');
+      if (!returnedOrderId) return;
+      buyBtn.disabled = true;
+      try {
+        await captureOrder(returnedOrderId);
+      } catch (e) {
+        setStatus(e.message, 'err');
+      } finally {
+        buyBtn.disabled = false;
+      }
+    }
+
+    buyBtn.addEventListener('click', async () => {
       setStatus('Creating PayPal order...');
       dlEl.innerHTML = '';
+      buyBtn.disabled = true;
       try {
         const created = await fetch('/api/create-order', { method: 'POST' }).then(r => r.json());
         if (!created.approveUrl) throw new Error(created.error || 'No approval URL returned');
+        sessionStorage.setItem('paypalOrderId', created.id);
         const popup = window.open(created.approveUrl, 'paypal_checkout', 'width=520,height=720');
+        if (!popup) {
+          location.href = created.approveUrl;
+          return;
+        }
         setStatus('Approve the payment in PayPal, then return here.');
-        const orderId = created.id;
         const interval = setInterval(async () => {
           if (popup && !popup.closed) return;
           clearInterval(interval);
-          setStatus('Capturing payment...');
-          const captured = await fetch('/api/capture-order', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ orderId }) }).then(r => r.json());
-          if (!captured.downloadUrl) throw new Error(captured.error || 'Capture failed');
-          setStatus('Payment captured. Download link generated.', 'ok');
-          dlEl.innerHTML = `<p><a class="btn" href="${captured.downloadUrl}">Download your kit</a></p><p class="small">Link expires in ${captured.expiresMinutes || 60} minutes.</p>`;
+          try {
+            await captureOrder(sessionStorage.getItem('paypalOrderId') || created.id);
+          } catch (e) {
+            setStatus(e.message, 'err');
+          } finally {
+            buyBtn.disabled = false;
+          }
         }, 1000);
       } catch (e) {
         setStatus(e.message, 'err');
+        buyBtn.disabled = false;
       }
     });
+
+    resumePayPalReturn();
   </script>
 </body>
 </html>
