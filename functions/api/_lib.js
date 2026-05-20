@@ -54,3 +54,44 @@ export async function verifyDownload(env, token) {
   if (!payload.exp || Date.now() > payload.exp) return null;
   return payload;
 }
+
+export async function ensureOrdersTable(env) {
+  if (!env.ORDERS_DB) return false;
+  await env.ORDERS_DB.prepare(`
+    CREATE TABLE IF NOT EXISTS completed_orders (
+      order_id TEXT PRIMARY KEY,
+      payer_email TEXT,
+      payer_name TEXT,
+      file_key TEXT NOT NULL,
+      captured_at INTEGER NOT NULL
+    )
+  `).run();
+  return true;
+}
+
+export function extractPayer(data) {
+  const payer = data?.payer || {};
+  const name = [payer.name?.given_name, payer.name?.surname].filter(Boolean).join(' ');
+  return { payerEmail: String(payer.email_address || '').toLowerCase(), payerName: name };
+}
+
+export async function recordCompletedOrder(env, { orderId, payerEmail, payerName, fileKey }) {
+  if (!await ensureOrdersTable(env)) return false;
+  await env.ORDERS_DB.prepare(`
+    INSERT OR REPLACE INTO completed_orders (order_id, payer_email, payer_name, file_key, captured_at)
+    VALUES (?1, ?2, ?3, ?4, ?5)
+  `).bind(orderId, payerEmail || '', payerName || '', fileKey, Date.now()).run();
+  return true;
+}
+
+export async function findCompletedOrder(env, { orderId, payerEmail }) {
+  if (!await ensureOrdersTable(env)) return null;
+  const row = await env.ORDERS_DB.prepare(`
+    SELECT order_id, payer_email, payer_name, file_key, captured_at
+    FROM completed_orders
+    WHERE order_id = ?1
+  `).bind(orderId).first();
+  if (!row) return null;
+  if (String(row.payer_email || '').toLowerCase() !== String(payerEmail || '').toLowerCase()) return null;
+  return row;
+}

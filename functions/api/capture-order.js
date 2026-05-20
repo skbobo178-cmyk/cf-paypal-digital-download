@@ -1,4 +1,4 @@
-import { json, paypalAccessToken, paypalBase, signDownload } from './_lib.js';
+import { extractPayer, json, paypalAccessToken, paypalBase, recordCompletedOrder, signDownload } from './_lib.js';
 
 export async function onRequestPost({ env, request }) {
   try {
@@ -13,9 +13,11 @@ export async function onRequestPost({ env, request }) {
     if (!res.ok) return json({ error: 'PayPal capture failed', details: data }, 502);
     if (data.status !== 'COMPLETED') return json({ error: `Payment not completed: ${data.status}`, details: data }, 402);
     const fileKey = env.PRODUCT_FILE_KEY || 'field-service-followup-kit-launch-pack.zip';
+    const { payerEmail, payerName } = extractPayer(data);
+    await recordCompletedOrder(env, { orderId, payerEmail, payerName, fileKey });
     const expiresMinutes = Number(env.DOWNLOAD_EXPIRES_MINUTES || 60);
     const tokenOut = await signDownload(env, { orderId, fileKey, exp: Date.now() + expiresMinutes * 60 * 1000 });
-    return json({ status: data.status, downloadUrl: `/api/download?token=${encodeURIComponent(tokenOut)}`, expiresMinutes });
+    return json({ status: data.status, downloadUrl: `/api/download?token=${encodeURIComponent(tokenOut)}`, expiresMinutes, orderId, payerEmail });
   } catch (e) {
     return json({ error: e.message }, 500);
   }

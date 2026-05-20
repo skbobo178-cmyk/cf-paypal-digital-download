@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Field Service Follow-up Kit — Secure Checkout</title>
   <style>
-    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:#08111f;color:#eef4ff;line-height:1.55}.wrap{max-width:980px;margin:0 auto;padding:44px 20px}.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:24px}.card{background:#101b30;border:1px solid #283856;border-radius:22px;padding:22px}h1{font-size:clamp(36px,6vw,62px);line-height:.95;margin:12px 0}.muted{color:#aab8d4}.price{font-size:42px;font-weight:900;color:#68e1fd}.btn{display:inline-block;background:#68e1fd;color:#06101a;padding:13px 18px;border-radius:14px;font-weight:800;text-decoration:none;border:0;cursor:pointer}.small{font-size:13px;color:#aab8d4}.ok{color:#9bffb4}.err{color:#ff9b9b}code{background:#17243d;padding:2px 5px;border-radius:6px}@media(max-width:800px){.hero{grid-template-columns:1fr}}</style>
+    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:#08111f;color:#eef4ff;line-height:1.55}.wrap{max-width:980px;margin:0 auto;padding:44px 20px}.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:24px}.card{background:#101b30;border:1px solid #283856;border-radius:22px;padding:22px}h1{font-size:clamp(36px,6vw,62px);line-height:.95;margin:12px 0}.muted{color:#aab8d4}.price{font-size:42px;font-weight:900;color:#68e1fd}.btn{display:inline-block;background:#68e1fd;color:#06101a;padding:13px 18px;border-radius:14px;font-weight:800;text-decoration:none;border:0;cursor:pointer}.btn:disabled{opacity:.55;cursor:not-allowed}.small{font-size:13px;color:#aab8d4}.ok{color:#9bffb4}.err{color:#ff9b9b}code{background:#17243d;padding:2px 5px;border-radius:6px}input{display:block;width:100%;box-sizing:border-box;margin:8px 0;padding:11px 12px;border-radius:12px;border:1px solid #35486c;background:#0b1528;color:#eef4ff}@media(max-width:800px){.hero{grid-template-columns:1fr}}</style>
 </head>
 <body>
   <main class="wrap">
@@ -27,6 +27,13 @@
         <button id="buy" class="btn">Buy with PayPal</button>
         <p id="status" class="small"></p>
         <div id="download"></div>
+        <hr style="border:0;border-top:1px solid #283856;margin:20px 0">
+        <h3>Already purchased?</h3>
+        <p class="small">Enter your PayPal order ID and buyer email to generate a fresh download link.</p>
+        <input id="recoverOrderId" placeholder="PayPal order ID" autocomplete="off">
+        <input id="recoverEmail" placeholder="Buyer PayPal email" type="email" autocomplete="email">
+        <button id="recover" class="btn" type="button">Get new download link</button>
+        <p id="recoverStatus" class="small"></p>
       </div>
     </section>
     <section class="card" style="margin-top:24px">
@@ -43,7 +50,18 @@
     const statusEl = document.getElementById('status');
     const dlEl = document.getElementById('download');
     const buyBtn = document.getElementById('buy');
+    const recoverBtn = document.getElementById('recover');
+    const recoverStatusEl = document.getElementById('recoverStatus');
     const setStatus = (msg, cls='small') => { statusEl.className = cls; statusEl.textContent = msg; };
+    const setRecoverStatus = (msg, cls='small') => { recoverStatusEl.className = cls; recoverStatusEl.textContent = msg; };
+
+    function showDownload(downloadUrl, expiresMinutes, orderId, payerEmail) {
+      localStorage.setItem('lastDownloadUrl', downloadUrl);
+      if (orderId) localStorage.setItem('lastPayPalOrderId', orderId);
+      if (payerEmail) localStorage.setItem('lastPayerEmail', payerEmail);
+      setStatus('Payment captured. Download link generated.', 'ok');
+      dlEl.innerHTML = `<p><a class="btn" href="${downloadUrl}">Download your kit</a></p><p class="small">Link expires in ${expiresMinutes || 60} minutes. Order ID: <code>${orderId || 'saved by PayPal'}</code></p>`;
+    }
 
     async function captureOrder(orderId) {
       if (!orderId) throw new Error('Missing PayPal order id. Please start checkout again.');
@@ -55,8 +73,8 @@
       }).then(r => r.json());
       if (!captured.downloadUrl) throw new Error(captured.error || 'Capture failed');
       sessionStorage.removeItem('paypalOrderId');
-      setStatus('Payment captured. Download link generated.', 'ok');
-      dlEl.innerHTML = `<p><a class="btn" href="${captured.downloadUrl}">Download your kit</a></p><p class="small">Link expires in ${captured.expiresMinutes || 60} minutes.</p>`;
+      showDownload(captured.downloadUrl, captured.expiresMinutes, captured.orderId || orderId, captured.payerEmail);
+      window.opener?.postMessage({ type: 'download-ready', ...captured }, location.origin);
       history.replaceState({}, '', location.pathname);
     }
 
@@ -74,6 +92,13 @@
         buyBtn.disabled = false;
       }
     }
+
+    window.addEventListener('message', (event) => {
+      if (event.origin !== location.origin || event.data?.type !== 'download-ready') return;
+      sessionStorage.removeItem('paypalOrderId');
+      showDownload(event.data.downloadUrl, event.data.expiresMinutes, event.data.orderId, event.data.payerEmail);
+      buyBtn.disabled = false;
+    });
 
     buyBtn.addEventListener('click', async () => {
       setStatus('Creating PayPal order...');
@@ -93,7 +118,7 @@
           if (popup && !popup.closed) return;
           clearInterval(interval);
           try {
-            await captureOrder(sessionStorage.getItem('paypalOrderId') || created.id);
+            if (sessionStorage.getItem('paypalOrderId')) await captureOrder(sessionStorage.getItem('paypalOrderId') || created.id);
           } catch (e) {
             setStatus(e.message, 'err');
           } finally {
@@ -106,6 +131,29 @@
       }
     });
 
+    recoverBtn.addEventListener('click', async () => {
+      recoverBtn.disabled = true;
+      setRecoverStatus('Looking up completed order...');
+      try {
+        const orderId = document.getElementById('recoverOrderId').value.trim();
+        const payerEmail = document.getElementById('recoverEmail').value.trim().toLowerCase();
+        const recovered = await fetch('/api/recover-download', {
+          method:'POST',
+          headers:{'content-type':'application/json'},
+          body: JSON.stringify({ orderId, payerEmail })
+        }).then(r => r.json());
+        if (!recovered.downloadUrl) throw new Error(recovered.error || 'Recovery failed');
+        showDownload(recovered.downloadUrl, recovered.expiresMinutes, orderId, payerEmail);
+        setRecoverStatus('Fresh download link generated.', 'ok');
+      } catch (e) {
+        setRecoverStatus(e.message, 'err');
+      } finally {
+        recoverBtn.disabled = false;
+      }
+    });
+
+    document.getElementById('recoverOrderId').value = localStorage.getItem('lastPayPalOrderId') || '';
+    document.getElementById('recoverEmail').value = localStorage.getItem('lastPayerEmail') || '';
     resumePayPalReturn();
   </script>
 </body>

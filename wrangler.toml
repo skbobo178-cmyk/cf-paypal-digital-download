@@ -16,3 +16,8 @@ pages_build_output_dir = "public"
 # [[r2_buckets]]
 # binding = "PRODUCT_BUCKET"
 # bucket_name = "digital-products"
+
+[[d1_databases]]
+binding = "ORDERS_DB"
+database_name = "field-service-orders"
+database_id = "0e61b854-2eb4-44c9-946c-fff7f9d66946"
