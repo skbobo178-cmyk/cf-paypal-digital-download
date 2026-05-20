@@ -12,6 +12,7 @@ pages_build_output_dir = "public"
 # PRODUCT_CURRENCY=USD
 # PRODUCT_FILE_KEY=field-service-followup-kit-launch-pack.zip
 
-[[r2_buckets]]
-binding = "PRODUCT_BUCKET"
-bucket_name = "digital-products"
+# Optional after Cloudflare R2 is enabled on the account:
+# [[r2_buckets]]
+# binding = "PRODUCT_BUCKET"
+# bucket_name = "digital-products"
