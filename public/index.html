@@ -74,7 +74,11 @@
       if (!captured.downloadUrl) throw new Error(captured.error || 'Capture failed');
       sessionStorage.removeItem('paypalOrderId');
       showDownload(captured.downloadUrl, captured.expiresMinutes, captured.orderId || orderId, captured.payerEmail);
-      window.opener?.postMessage({ type: 'download-ready', ...captured }, location.origin);
+      if (window.opener && !window.opener.closed) {
+        window.opener.postMessage({ type: 'download-ready', ...captured }, location.origin);
+        setStatus('Payment captured. Download link sent to the original window. Closing this checkout window...', 'ok');
+        setTimeout(() => window.close(), 900);
+      }
       history.replaceState({}, '', location.pathname);
     }
 

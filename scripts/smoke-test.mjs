@@ -6,6 +6,7 @@ for (const f of files) {
 }
 const html = readFileSync('public/index.html', 'utf8');
 if (!html.includes('postMessage({ type: \'download-ready\'')) throw new Error('return popup must notify opener with download URL');
+if (!html.includes('window.close()')) throw new Error('checkout popup must close itself after notifying opener');
 if (!html.includes('recover-download')) throw new Error('page must include re-download recovery flow');
 const lib = readFileSync('functions/api/_lib.js', 'utf8');
 if (!lib.includes('recordCompletedOrder')) throw new Error('capture flow must persist completed orders');
