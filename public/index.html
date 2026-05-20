@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Field Service Follow-up Kit — Secure Checkout</title>
+  <style>
+    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:#08111f;color:#eef4ff;line-height:1.55}.wrap{max-width:980px;margin:0 auto;padding:44px 20px}.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:24px}.card{background:#101b30;border:1px solid #283856;border-radius:22px;padding:22px}h1{font-size:clamp(36px,6vw,62px);line-height:.95;margin:12px 0}.muted{color:#aab8d4}.price{font-size:42px;font-weight:900;color:#68e1fd}.btn{display:inline-block;background:#68e1fd;color:#06101a;padding:13px 18px;border-radius:14px;font-weight:800;text-decoration:none;border:0;cursor:pointer}.small{font-size:13px;color:#aab8d4}.ok{color:#9bffb4}.err{color:#ff9b9b}code{background:#17243d;padding:2px 5px;border-radius:6px}@media(max-width:800px){.hero{grid-template-columns:1fr}}</style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div>
+        <p class="ok">PayPal + Cloudflare Workers digital delivery</p>
+        <h1>Field Service Follow-up Kit</h1>
+        <p class="muted">A no-CRM follow-up and invoice tracker for 1–5 person local service businesses using SMS and Google Calendar.</p>
+        <p class="price">$79</p>
+        <ul class="muted">
+          <li>XLSX tracker template</li>
+          <li>PDF setup guide</li>
+          <li>Follow-up scripts and launch pack</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2>Checkout</h2>
+        <p class="small">This platform creates a PayPal order server-side, captures it after approval, then returns a signed expiring download link.</p>
+        <button id="buy" class="btn">Buy with PayPal</button>
+        <p id="status" class="small"></p>
+        <div id="download"></div>
+      </div>
+    </section>
+    <section class="card" style="margin-top:24px">
+      <h2>How delivery works</h2>
+      <ol class="muted">
+        <li>Click buy → Cloudflare Function creates a PayPal order.</li>
+        <li>Buyer approves payment on PayPal.</li>
+        <li>Cloudflare Function captures payment and signs a download token.</li>
+        <li>Download endpoint verifies token and streams the file from private R2 storage.</li>
+      </ol>
+    </section>
+  </main>
+  <script>
+    const statusEl = document.getElementById('status');
+    const dlEl = document.getElementById('download');
+    const setStatus = (msg, cls='small') => { statusEl.className = cls; statusEl.textContent = msg; };
+    document.getElementById('buy').addEventListener('click', async () => {
+      setStatus('Creating PayPal order...');
+      dlEl.innerHTML = '';
+      try {
+        const created = await fetch('/api/create-order', { method: 'POST' }).then(r => r.json());
+        if (!created.approveUrl) throw new Error(created.error || 'No approval URL returned');
+        const popup = window.open(created.approveUrl, 'paypal_checkout', 'width=520,height=720');
+        setStatus('Approve the payment in PayPal, then return here.');
+        const orderId = created.id;
+        const interval = setInterval(async () => {
+          if (popup && !popup.closed) return;
+          clearInterval(interval);
+          setStatus('Capturing payment...');
+          const captured = await fetch('/api/capture-order', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ orderId }) }).then(r => r.json());
+          if (!captured.downloadUrl) throw new Error(captured.error || 'Capture failed');
+          setStatus('Payment captured. Download link generated.', 'ok');
+          dlEl.innerHTML = `<p><a class="btn" href="${captured.downloadUrl}">Download your kit</a></p><p class="small">Link expires in ${captured.expiresMinutes || 60} minutes.</p>`;
+        }, 1000);
+      } catch (e) {
+        setStatus(e.message, 'err');
+      }
+    });
+  </script>
+</body>
+</html>

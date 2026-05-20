@@ -1,0 +1,14 @@
+{
+  "name": "cf-paypal-digital-download",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler pages dev public --compatibility-date=2026-05-20 --r2=PRODUCT_BUCKET",
+    "deploy": "wrangler pages deploy public --project-name cf-paypal-digital-download",
+    "test": "node scripts/smoke-test.mjs"
+  },
+  "devDependencies": {
+    "wrangler": "latest"
+  }
+}

@@ -1,0 +1,17 @@
+name = "cf-paypal-digital-download"
+compatibility_date = "2026-05-20"
+pages_build_output_dir = "public"
+
+# Configure these in Cloudflare Pages project settings, not in git:
+# PAYPAL_CLIENT_ID
+# PAYPAL_CLIENT_SECRET
+# PAYPAL_ENV=sandbox or live
+# DOWNLOAD_SECRET=random-long-string
+# PRODUCT_SKU=field-service-followup-kit
+# PRODUCT_PRICE=79.00
+# PRODUCT_CURRENCY=USD
+# PRODUCT_FILE_KEY=field-service-followup-kit-launch-pack.zip
+
+[[r2_buckets]]
+binding = "PRODUCT_BUCKET"
+bucket_name = "digital-products"
