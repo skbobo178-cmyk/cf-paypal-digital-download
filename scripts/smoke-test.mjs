@@ -12,4 +12,6 @@ const lib = readFileSync('functions/api/_lib.js', 'utf8');
 if (!lib.includes('recordCompletedOrder')) throw new Error('capture flow must persist completed orders');
 const capture = readFileSync('functions/api/capture-order.js', 'utf8');
 if (!capture.includes('recordCompletedOrder')) throw new Error('capture endpoint must record completed order');
+if (!capture.includes('sendPurchaseEmail')) throw new Error('capture endpoint must send purchase email when payer email is available');
+if (!lib.includes('api.resend.com/emails')) throw new Error('library must integrate with Resend email API');
 console.log('smoke ok');

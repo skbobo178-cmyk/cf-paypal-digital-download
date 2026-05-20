@@ -95,3 +95,19 @@ export async function findCompletedOrder(env, { orderId, payerEmail }) {
   if (String(row.payer_email || '').toLowerCase() !== String(payerEmail || '').toLowerCase()) return null;
   return row;
 }
+
+export async function sendPurchaseEmail(env, { to, orderId, downloadUrl, expiresMinutes }) {
+  if (!env.RESEND_API_KEY || !to || !downloadUrl) return { skipped: true };
+  const from = env.EMAIL_FROM || 'Field Service Follow-up Kit <onboarding@resend.dev>';
+  const subject = 'Your Field Service Follow-up Kit download';
+  const text = `Thanks for your purchase.\n\nPayPal Order ID: ${orderId}\nDownload link: ${downloadUrl}\nThis link expires in ${expiresMinutes || 60} minutes.\n\nIf it expires, return to the checkout page and use your PayPal Order ID plus buyer email to generate a fresh link.`;
+  const html = `<p>Thanks for your purchase.</p><p><strong>PayPal Order ID:</strong> ${orderId}</p><p><a href="${downloadUrl}">Download your Field Service Follow-up Kit</a></p><p>This link expires in ${expiresMinutes || 60} minutes.</p><p>If it expires, return to the checkout page and use your PayPal Order ID plus buyer email to generate a fresh link.</p>`;
+  const res = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ from, to, subject, text, html })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) return { sent: false, status: res.status, error: data };
+  return { sent: true, id: data.id };
+}

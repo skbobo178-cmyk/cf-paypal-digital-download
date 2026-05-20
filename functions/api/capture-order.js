@@ -1,4 +1,4 @@
-import { extractPayer, json, paypalAccessToken, paypalBase, recordCompletedOrder, signDownload } from './_lib.js';
+import { extractPayer, json, paypalAccessToken, paypalBase, recordCompletedOrder, sendPurchaseEmail, signDownload } from './_lib.js';
 
 export async function onRequestPost({ env, request }) {
   try {
@@ -17,7 +17,10 @@ export async function onRequestPost({ env, request }) {
     await recordCompletedOrder(env, { orderId, payerEmail, payerName, fileKey });
     const expiresMinutes = Number(env.DOWNLOAD_EXPIRES_MINUTES || 60);
     const tokenOut = await signDownload(env, { orderId, fileKey, exp: Date.now() + expiresMinutes * 60 * 1000 });
-    return json({ status: data.status, downloadUrl: `/api/download?token=${encodeURIComponent(tokenOut)}`, expiresMinutes, orderId, payerEmail });
+    const downloadUrl = `/api/download?token=${encodeURIComponent(tokenOut)}`;
+    const absoluteDownloadUrl = new URL(downloadUrl, request.url).href;
+    const email = await sendPurchaseEmail(env, { to: payerEmail, orderId, downloadUrl: absoluteDownloadUrl, expiresMinutes });
+    return json({ status: data.status, downloadUrl, expiresMinutes, orderId, payerEmail, email });
   } catch (e) {
     return json({ error: e.message }, 500);
   }
