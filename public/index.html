@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>WaterGG checkout — Field Service Follow-up Kit</title>
+  <title>Skyknow Checkout — Secure Digital Downloads</title>
   <style>
     body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:#08111f;color:#eef4ff;line-height:1.55}.wrap{max-width:980px;margin:0 auto;padding:44px 20px}.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:24px}.card{background:#101b30;border:1px solid #283856;border-radius:22px;padding:22px}h1{font-size:clamp(36px,6vw,62px);line-height:.95;margin:12px 0}.muted{color:#aab8d4}.price{font-size:42px;font-weight:900;color:#68e1fd}.btn{display:inline-block;background:#68e1fd;color:#06101a;padding:13px 18px;border-radius:14px;font-weight:800;text-decoration:none;border:0;cursor:pointer}.btn:disabled{opacity:.55;cursor:not-allowed}.small{font-size:13px;color:#aab8d4}.ok{color:#9bffb4}.err{color:#ff9b9b}code{background:#17243d;padding:2px 5px;border-radius:6px}input{display:block;width:100%;box-sizing:border-box;margin:8px 0;padding:11px 12px;border-radius:12px;border:1px solid #35486c;background:#0b1528;color:#eef4ff}@media(max-width:800px){.hero{grid-template-columns:1fr}}</style>
 </head>
@@ -11,20 +11,20 @@
   <main class="wrap">
     <section class="hero">
       <div>
-        <p class="ok">PayPal + Cloudflare Workers digital delivery</p>
-        <h1>Field Service Follow-up Kit</h1>
-        <p class="muted">A no-CRM follow-up and invoice tracker for 1–5 person local service businesses using SMS and Google Calendar.</p>
+        <p class="ok">Skyknow secure checkout</p>
+        <h1>Skyknow Checkout</h1>
+        <p class="muted">A lightweight payment and delivery page for validated Skyknow digital products. PayPal handles payment; Skyknow Checkout generates signed download links, logs orders, and sends delivery email.</p>
         <p class="price">$79</p>
         <ul class="muted">
-          <li>XLSX tracker template</li>
-          <li>PDF setup guide</li>
-          <li>Follow-up scripts and launch pack</li>
+          <li>Current item: Field Service Follow-up Kit</li>
+          <li>Includes XLSX tracker, PDF guide, and scripts</li>
+          <li>Single-product MVP checkout; not a full product catalog yet</li>
         </ul>
       </div>
       <div class="card">
-        <h2>Checkout</h2>
-        <p class="small">This platform creates a PayPal order server-side, captures it after approval, then returns a signed expiring download link.</p>
-        <button id="buy" class="btn">Buy with PayPal</button>
+        <h2>Current download</h2>
+        <p class="small"><strong>Field Service Follow-up Kit</strong> is the only configured paid item in this MVP. This page creates a PayPal Live order server-side, captures it after approval, then returns a signed expiring download link.</p>
+        <button id="buy" class="btn">Buy current kit with PayPal</button>
         <p id="status" class="small"></p>
         <div id="download"></div>
         <hr style="border:0;border-top:1px solid #283856;margin:20px 0">
@@ -37,7 +37,7 @@
       </div>
     </section>
     <section class="card" style="margin-top:24px">
-      <h2>How delivery works</h2>
+      <h2>How Skyknow Checkout delivery works</h2>
       <ol class="muted">
         <li>Click buy → Cloudflare Function creates a PayPal order.</li>
         <li>Buyer approves payment on PayPal.</li>
@@ -60,7 +60,7 @@
       if (orderId) localStorage.setItem('lastPayPalOrderId', orderId);
       if (payerEmail) localStorage.setItem('lastPayerEmail', payerEmail);
       setStatus('Payment captured. Download link generated.', 'ok');
-      dlEl.innerHTML = `<p><a class="btn" href="${downloadUrl}">Download your kit</a></p><p class="small">Link expires in ${expiresMinutes || 60} minutes. Order ID: <code>${orderId || 'saved by PayPal'}</code></p>`;
+      dlEl.innerHTML = `<p><a class="btn" href="${downloadUrl}">Download your purchase</a></p><p class="small">Link expires in ${expiresMinutes || 60} minutes. Order ID: <code>${orderId || 'saved by PayPal'}</code></p>`;
     }
 
     async function captureOrder(orderId) {
