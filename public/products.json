@@ -1,0 +1,16 @@
+{
+  "checkoutBrand": "Skyknow Checkout",
+  "statusModel": ["Draft", "Technical-live", "Validated-live"],
+  "items": [
+    {
+      "sku": "field-service-followup-kit",
+      "name": "Field Service Follow-up Kit",
+      "price": "79.00",
+      "currency": "USD",
+      "fileKey": "field-service-followup-kit-launch-pack.zip",
+      "status": "Technical-live",
+      "visibility": "internal-live-test",
+      "notes": "Only configured paid item in the current checkout MVP. Not treated as a validated public product until live small-payment capture, email delivery, recovery, and demand QA pass."
+    }
+  ]
+}

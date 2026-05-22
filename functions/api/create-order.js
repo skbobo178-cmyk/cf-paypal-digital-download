@@ -13,7 +13,7 @@ export async function onRequestPost({ env, request }) {
       body: JSON.stringify({
         intent: 'CAPTURE',
         purchase_units: [{ reference_id: sku, amount: { currency_code: currency, value: price } }],
-        application_context: { brand_name: 'Field Service Follow-up Kit', user_action: 'PAY_NOW', return_url: origin + '/', cancel_url: origin + '/' }
+        application_context: { brand_name: env.CHECKOUT_BRAND || 'Skyknow Checkout', user_action: 'PAY_NOW', return_url: origin + '/', cancel_url: origin + '/' }
       })
     });
     const data = await res.json();

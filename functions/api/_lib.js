@@ -99,9 +99,10 @@ export async function findCompletedOrder(env, { orderId, payerEmail }) {
 export async function sendPurchaseEmail(env, { to, orderId, downloadUrl, expiresMinutes }) {
   if (!env.RESEND_API_KEY || !to || !downloadUrl) return { skipped: true };
   const from = env.EMAIL_FROM || 'Field Service Follow-up Kit <onboarding@resend.dev>';
-  const subject = 'Your Field Service Follow-up Kit download';
-  const text = `Thanks for your purchase.\n\nPayPal Order ID: ${orderId}\nDownload link: ${downloadUrl}\nThis link expires in ${expiresMinutes || 60} minutes.\n\nIf it expires, return to the checkout page and use your PayPal Order ID plus buyer email to generate a fresh link.`;
-  const html = `<p>Thanks for your purchase.</p><p><strong>PayPal Order ID:</strong> ${orderId}</p><p><a href="${downloadUrl}">Download your Field Service Follow-up Kit</a></p><p>This link expires in ${expiresMinutes || 60} minutes.</p><p>If it expires, return to the checkout page and use your PayPal Order ID plus buyer email to generate a fresh link.</p>`;
+  const subject = `Your Skyknow Checkout download${orderId ? ` (${orderId})` : ''}`;
+  const productName = env.PRODUCT_NAME || 'your Skyknow purchase';
+  const text = `Thanks for your purchase.\n\nProduct: ${productName}\nPayPal Order ID: ${orderId}\nDownload link: ${downloadUrl}\nThis link expires in ${expiresMinutes || 60} minutes.\n\nIf it expires, return to the checkout page and use your PayPal Order ID plus buyer email to generate a fresh link.`;
+  const html = `<p>Thanks for your purchase.</p><p><strong>Product:</strong> ${productName}</p><p><strong>PayPal Order ID:</strong> ${orderId}</p><p><a href="${downloadUrl}">Download your purchase</a></p><p>This link expires in ${expiresMinutes || 60} minutes.</p><p>If it expires, return to the checkout page and use your PayPal Order ID plus buyer email to generate a fresh link.</p>`;
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },

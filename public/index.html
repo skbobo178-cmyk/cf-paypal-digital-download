@@ -3,49 +3,71 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Skyknow Checkout — Secure Digital Downloads</title>
+  <title>Skyknow Checkout — Payment & Digital Delivery</title>
+  <meta name="description" content="Skyknow Checkout is the owned PayPal + signed-download delivery layer for validated Skyknow digital products." />
   <style>
-    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:#08111f;color:#eef4ff;line-height:1.55}.wrap{max-width:980px;margin:0 auto;padding:44px 20px}.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:24px}.card{background:#101b30;border:1px solid #283856;border-radius:22px;padding:22px}h1{font-size:clamp(36px,6vw,62px);line-height:.95;margin:12px 0}.muted{color:#aab8d4}.price{font-size:42px;font-weight:900;color:#68e1fd}.btn{display:inline-block;background:#68e1fd;color:#06101a;padding:13px 18px;border-radius:14px;font-weight:800;text-decoration:none;border:0;cursor:pointer}.btn:disabled{opacity:.55;cursor:not-allowed}.small{font-size:13px;color:#aab8d4}.ok{color:#9bffb4}.err{color:#ff9b9b}code{background:#17243d;padding:2px 5px;border-radius:6px}input{display:block;width:100%;box-sizing:border-box;margin:8px 0;padding:11px 12px;border-radius:12px;border:1px solid #35486c;background:#0b1528;color:#eef4ff}@media(max-width:800px){.hero{grid-template-columns:1fr}}</style>
+    :root{--bg:#070b16;--card:#101827;--card2:#0d1424;--line:#25334f;--ink:#eef4ff;--muted:#9fb0d0;--accent:#74e4bd;--accent2:#8ab4ff;--warn:#ffd166;--danger:#ff9b9b}
+    *{box-sizing:border-box}body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;background:radial-gradient(circle at 10% 0,#173a5c 0,#070b16 38%,#050812 100%);color:var(--ink);line-height:1.55}.wrap{max-width:1120px;margin:0 auto;padding:34px 20px 70px}.nav{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:54px}.brand{font-weight:950;letter-spacing:-.03em;font-size:20px}.badge{display:inline-flex;align-items:center;border:1px solid var(--line);background:rgba(116,228,189,.09);color:var(--accent);border-radius:999px;padding:7px 11px;font-size:13px;font-weight:800}.hero{display:grid;grid-template-columns:1.08fr .92fr;gap:24px;align-items:start}.card{background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.025));border:1px solid var(--line);border-radius:24px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.28)}h1{font-size:clamp(42px,6vw,76px);line-height:.94;margin:14px 0 18px;letter-spacing:-.06em}h2{font-size:27px;line-height:1.12;margin:0 0 12px}h3{margin:18px 0 8px}.lead{font-size:21px;color:#dce7ff;max-width:760px}.muted,.small{color:var(--muted)}.small{font-size:13px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px}.btn{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:14px;padding:13px 17px;font-weight:900;text-decoration:none;cursor:pointer;background:var(--accent);color:#06120f}.btn.secondary{background:transparent;color:var(--ink);border:1px solid var(--line)}.btn:disabled{opacity:.55;cursor:not-allowed}.price{font-size:38px;font-weight:950;color:var(--accent);letter-spacing:-.04em}.ok{color:var(--accent)}.warn{color:var(--warn)}.err{color:var(--danger)}code{background:#17243d;padding:2px 5px;border-radius:6px}input{display:block;width:100%;box-sizing:border-box;margin:8px 0;padding:11px 12px;border-radius:12px;border:1px solid #35486c;background:#0b1528;color:#eef4ff}.status{display:inline-flex;border-radius:999px;padding:5px 9px;font-size:12px;font-weight:900;border:1px solid #69551f;background:rgba(255,209,102,.12);color:var(--warn)}.divider{border:0;border-top:1px solid var(--line);margin:20px 0}.footer{margin-top:36px;color:var(--muted);font-size:13px}@media(max-width:860px){.hero,.grid{grid-template-columns:1fr}.nav{margin-bottom:30px}}
+  </style>
 </head>
 <body>
   <main class="wrap">
+    <nav class="nav">
+      <div class="brand">Skyknow Checkout</div>
+      <div class="badge">PayPal Live · D1 Orders · Resend Delivery</div>
+    </nav>
+
     <section class="hero">
       <div>
-        <p class="ok">Skyknow secure checkout</p>
-        <h1>Skyknow Checkout</h1>
-        <p class="muted">A lightweight payment and delivery page for validated Skyknow digital products. PayPal handles payment; Skyknow Checkout generates signed download links, logs orders, and sends delivery email.</p>
-        <p class="price">$79</p>
-        <ul class="muted">
-          <li>Current item: Field Service Follow-up Kit</li>
-          <li>Includes XLSX tracker, PDF guide, and scripts</li>
-          <li>Single-product MVP checkout; not a full product catalog yet</li>
-        </ul>
+        <span class="badge">Owned checkout infrastructure</span>
+        <h1>Payment and download delivery for validated Skyknow products.</h1>
+        <p class="lead">This is the Skyknow payment layer: PayPal creates and captures orders, Cloudflare signs expiring download links, D1 records completed purchases, and Resend sends delivery email.</p>
+        <p class="muted">This page is now intentionally branded as infrastructure, not as a random product storefront. Products should only be promoted after QA and market validation.</p>
+        <div class="grid">
+          <div class="card"><h2>1. Pay</h2><p class="small">Server-side PayPal Live order creation. Secrets are kept in Cloudflare Pages, not the browser.</p></div>
+          <div class="card"><h2>2. Deliver</h2><p class="small">Completed orders receive signed, expiring download links; product files stay private.</p></div>
+          <div class="card"><h2>3. Recover</h2><p class="small">Buyer can regenerate a download link with PayPal order ID and email.</p></div>
+        </div>
       </div>
-      <div class="card">
-        <h2>Current download</h2>
-        <p class="small"><strong>Field Service Follow-up Kit</strong> is the only configured paid item in this MVP. This page creates a PayPal Live order server-side, captures it after approval, then returns a signed expiring download link.</p>
-        <button id="buy" class="btn">Buy current kit with PayPal</button>
+
+      <aside class="card">
+        <h2>Current configured item</h2>
+        <span class="status">Technical-live · not market-validated</span>
+        <h3>Field Service Follow-up Kit</h3>
+        <p class="small">This is currently the only paid downloadable item wired into the checkout MVP. It is kept here for controlled live-flow validation, not as a polished public product launch.</p>
+        <p class="price">$79 USD</p>
+        <ul class="muted">
+          <li>XLSX tracker template</li>
+          <li>PDF setup guide</li>
+          <li>Follow-up scripts and launch pack</li>
+        </ul>
+        <button id="buy" class="btn">Controlled live test / buy current kit</button>
         <p id="status" class="small"></p>
         <div id="download"></div>
-        <hr style="border:0;border-top:1px solid #283856;margin:20px 0">
+        <hr class="divider">
         <h3>Already purchased?</h3>
-        <p class="small">Enter your PayPal order ID and buyer email to generate a fresh download link.</p>
+        <p class="small">Enter PayPal order ID and buyer email to generate a fresh download link.</p>
         <input id="recoverOrderId" placeholder="PayPal order ID" autocomplete="off">
         <input id="recoverEmail" placeholder="Buyer PayPal email" type="email" autocomplete="email">
-        <button id="recover" class="btn" type="button">Get new download link</button>
+        <button id="recover" class="btn secondary" type="button">Get new download link</button>
         <p id="recoverStatus" class="small"></p>
-      </div>
+      </aside>
     </section>
+
     <section class="card" style="margin-top:24px">
-      <h2>How Skyknow Checkout delivery works</h2>
-      <ol class="muted">
-        <li>Click buy → Cloudflare Function creates a PayPal order.</li>
-        <li>Buyer approves payment on PayPal.</li>
-        <li>Cloudflare Function captures payment and signs a download token.</li>
-        <li>Download endpoint verifies token and streams the file from private R2 storage.</li>
-      </ol>
+      <h2>Launch policy</h2>
+      <p class="muted">A product is not considered ready just because this checkout can collect money. Each paid item must pass technical QA, offer QA, and market QA before being promoted from this infrastructure page.</p>
+      <ul class="muted">
+        <li><strong>Draft:</strong> artifact/copy exists, not sellable.</li>
+        <li><strong>Technical-live:</strong> checkout is wired, but live capture/email/recovery or demand proof is incomplete.</li>
+        <li><strong>Validated-live:</strong> end-to-end payment, delivery, recovery, and buyer demand signals are verified.</li>
+      </ul>
+      <p class="small">Product manifest: <a href="/products.json">products.json</a></p>
     </section>
+
+    <footer class="footer">Skyknow Checkout is an owned checkout/delivery layer. Public product pages should link here only after validation.</footer>
   </main>
+
   <script>
     const statusEl = document.getElementById('status');
     const dlEl = document.getElementById('download');
@@ -84,17 +106,12 @@
 
     async function resumePayPalReturn() {
       const params = new URLSearchParams(location.search);
-      // PayPal returns approved orders as ?token=ORDER_ID&PayerID=...
       const returnedOrderId = params.get('token') || params.get('orderId');
       if (!returnedOrderId) return;
       buyBtn.disabled = true;
-      try {
-        await captureOrder(returnedOrderId);
-      } catch (e) {
-        setStatus(e.message, 'err');
-      } finally {
-        buyBtn.disabled = false;
-      }
+      try { await captureOrder(returnedOrderId); }
+      catch (e) { setStatus(e.message, 'err'); }
+      finally { buyBtn.disabled = false; }
     }
 
     window.addEventListener('message', (event) => {
@@ -113,26 +130,17 @@
         if (!created.approveUrl) throw new Error(created.error || 'No approval URL returned');
         sessionStorage.setItem('paypalOrderId', created.id);
         const popup = window.open(created.approveUrl, 'paypal_checkout', 'width=520,height=720');
-        if (!popup) {
-          location.href = created.approveUrl;
-          return;
-        }
+        if (!popup) { location.href = created.approveUrl; return; }
         setStatus('Approve the payment in PayPal, then return here.');
         const interval = setInterval(async () => {
           if (popup && !popup.closed) return;
           clearInterval(interval);
           try {
             if (sessionStorage.getItem('paypalOrderId')) await captureOrder(sessionStorage.getItem('paypalOrderId') || created.id);
-          } catch (e) {
-            setStatus(e.message, 'err');
-          } finally {
-            buyBtn.disabled = false;
-          }
+          } catch (e) { setStatus(e.message, 'err'); }
+          finally { buyBtn.disabled = false; }
         }, 1000);
-      } catch (e) {
-        setStatus(e.message, 'err');
-        buyBtn.disabled = false;
-      }
+      } catch (e) { setStatus(e.message, 'err'); buyBtn.disabled = false; }
     });
 
     recoverBtn.addEventListener('click', async () => {
@@ -142,18 +150,13 @@
         const orderId = document.getElementById('recoverOrderId').value.trim();
         const payerEmail = document.getElementById('recoverEmail').value.trim().toLowerCase();
         const recovered = await fetch('/api/recover-download', {
-          method:'POST',
-          headers:{'content-type':'application/json'},
-          body: JSON.stringify({ orderId, payerEmail })
+          method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ orderId, payerEmail })
         }).then(r => r.json());
         if (!recovered.downloadUrl) throw new Error(recovered.error || 'Recovery failed');
         showDownload(recovered.downloadUrl, recovered.expiresMinutes, orderId, payerEmail);
         setRecoverStatus('Fresh download link generated.', 'ok');
-      } catch (e) {
-        setRecoverStatus(e.message, 'err');
-      } finally {
-        recoverBtn.disabled = false;
-      }
+      } catch (e) { setRecoverStatus(e.message, 'err'); }
+      finally { recoverBtn.disabled = false; }
     });
 
     document.getElementById('recoverOrderId').value = localStorage.getItem('lastPayPalOrderId') || '';
