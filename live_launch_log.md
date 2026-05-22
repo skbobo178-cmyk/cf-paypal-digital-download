@@ -18,9 +18,10 @@ Also updated the static page title to `WaterGG checkout — Field Service Follow
 
 ## Email state
 
-- Cloudflare Pages already has encrypted `RESEND_API_KEY` and `EMAIL_FROM` secrets configured.
-- A real Resend domain/from-address cannot be verified from Cloudflare because secret values are encrypted.
-- Next real verification requires a live small payment capture, which should trigger the production Resend send path.
+- Cloudflare Pages has encrypted `RESEND_API_KEY` configured.
+- 2026-05-22: `EMAIL_FROM` production secret updated to `Skyknow Checkout <downloads@skyknow.cc>`.
+- Cloudflare secret values are encrypted and cannot be read back, but `wrangler pages secret list` confirms `EMAIL_FROM` is present after update.
+- Next real verification requires a live small payment capture, which should trigger the production Resend send path from `Skyknow Checkout <downloads@skyknow.cc>`.
 
 ## Not performed automatically
 
